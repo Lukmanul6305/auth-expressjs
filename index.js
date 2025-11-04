@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const session = require("express-session");
 const PORT = 3000;
 app.use(express.json());
 const db = require("./config/connection");
