@@ -1,5 +1,10 @@
 const response = require("../utils/response");
 const db = require("../config/connection");
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = process.env.JWT_SECRET;
+const options = {
+  expiresIn : process.env.JWT_EXPIRE
+}
 
 const bcrypt = require("bcrypt");
 
@@ -62,6 +67,36 @@ exports.showUsers = async (req, res) => {
 //   }
 // };
 
-("LOGIN DENGAN SESSION");
+("LOGIN DENGAN jwt");
 
-exports.Login = async (req, res) => {};
+exports.Login = async (req, res) => {
+  try {
+    const { email, password} = req.body;
+    const sql = "SELECT * FROM users where email = ?";
+    const [result] = await db.execute(sql, [email]);
+
+    if (result.length === 0) {
+      response(200, "email tidak ditemukan", null, res);
+    }
+    const user = result[0];
+    const isPassword = await bcrypt.compare(password, user.password);
+    if (!isPassword) {
+      response(401, "Password salah!!", { isSuccess: false }, res);
+    }
+    const payload = {
+      id: user.id,
+      nama: user.nama,
+      email: user.email,
+    };
+    const token = jwt.sign(payload, SECRET_KEY, options);
+    const data = {
+      token: token,
+      isSuccess: true,
+    };
+    response(200, "anda berhasil login", data, res);
+  } catch (error) {
+    console.log(error.message);
+    response(500, "terjadi kesalahan", error, res);
+    
+  }
+};

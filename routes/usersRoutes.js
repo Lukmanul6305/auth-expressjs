@@ -12,5 +12,6 @@ app.use(timeLog);
 router.post("/register", Register);
 router.post("/login", Login);
 router.post("/show", showUsers);
+router.post("/login", Login);
 
 module.exports = router;
